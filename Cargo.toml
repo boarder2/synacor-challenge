@@ -1,0 +1,7 @@
+[package]
+name = "synacor_challenge"
+version = "0.0.1"
+authors = ["boarder2"]
+[dependencies]
+time = "*"
+byteorder = "*"

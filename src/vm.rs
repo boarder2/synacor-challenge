@@ -6,8 +6,8 @@ pub fn run(memory: Vec<u16>) {
 	for _ in 0..8 {
 		 registers.push(0);
 	}
-	let foo = memory.clone();
-	println!("{:?}", foo);
+	// let foo = memory.clone();
+	// println!("{:?}", foo);
 	while let Some(new_op) = ops::run_op(current_op, &memory, &mut registers) {
 		current_op = new_op;
 	}

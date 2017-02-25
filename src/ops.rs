@@ -77,3 +77,50 @@ fn get_mem_or_register_value(memory_value: u16, registers: &Vec<u16>) -> u16 {
 	}
 	memory_value
 }
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn get_mem_or_register_value_mem() {
+		let expected = 1234;
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let result = get_mem_or_register_value(expected, &registers);
+		assert_eq!(expected, result);
+	}
+
+	#[test]
+	fn get_mem_or_register_value_reg_0() {
+		let expected = 1234;
+		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
+		let result = get_mem_or_register_value(32768, &registers);
+		assert_eq!(expected, result);
+	}
+	
+	#[test]
+	fn get_mem_or_register_value_reg_8() {
+		let expected = 1234;
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, expected];
+		let result = get_mem_or_register_value(32775, &registers);
+		assert_eq!(expected, result);
+	}
+
+	#[test]
+	fn jmp_mem() {
+		let expected = 2;
+		let mem = vec![6, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jmp(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jmp_reg() {
+		let expected = 19;
+		let mem = vec![6, 32768];
+		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jmp(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+}

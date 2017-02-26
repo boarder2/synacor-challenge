@@ -2,8 +2,7 @@ pub fn run_op(current_instruction: u16,
               memory: &Vec<u16>,
               registers: &mut Vec<u16>)
               -> Option<u16> {
-	let mut new_instruction_index = current_instruction;
-	new_instruction_index += 1;
+	let mut size = 1;
 	if current_instruction as usize > memory.len() {
 		return None;
 	}
@@ -12,26 +11,26 @@ pub fn run_op(current_instruction: u16,
 		0 => return None,
 		1 => {
 			set(current_instruction, memory, registers);
-			new_instruction_index += 2;
+			size = 3;
 		}
 		6 => return Some(jmp(current_instruction, memory, registers)),
 		7 => return Some(jt(current_instruction, memory, registers)),
 		8 => return Some(jf(current_instruction, memory, registers)),
 		19 => {
 			out(memory[current_instruction as usize + 1]);
-			new_instruction_index += 1;
+			size = 2;
 		}
 		21 => {} // 21 is NOOP, so just move to the next instruction.
 		i => {
 			println!("Instruction not implemented {:?} at offset {:?}",
 			         i,
-			         current_instruction)
+			         current_instruction);
 		}
 		//_ => {}
 	}
 
 	// return new instruction index
-	Some(new_instruction_index)
+	Some(current_instruction + size)
 }
 
 fn out(code: u16) {

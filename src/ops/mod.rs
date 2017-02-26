@@ -53,13 +53,7 @@ pub fn run_op(current_instruction: u16,
 		19 => return run_op_local(out::Out, current_instruction, memory, registers, stack),
 		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
-		i => {
-			println!("Instruction not implemented {:?} at offset {:?}",
-			         i,
-			         current_instruction);
-			return Some(current_instruction + 1);
-		}
-		//_ => {}
+		_ => unimplemented!()
 	}
 }
 

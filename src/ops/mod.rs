@@ -1,10 +1,25 @@
 mod operation;
-mod out;
 mod set;
-mod noop;
+mod push;
+mod pop;
+mod eqop;
+mod gt;
 mod jmp;
 mod jt;
 mod jf;
+mod add;
+mod mult;
+mod modop;
+mod and;
+mod or;
+mod not;
+mod rmem;
+mod wmem;
+mod call;
+mod ret;
+mod out;
+mod inop;
+mod noop;
 
 pub fn run_op(current_instruction: u16,
               memory: &Vec<u16>,
@@ -18,10 +33,25 @@ pub fn run_op(current_instruction: u16,
 	match memory[current_instruction as usize] {
 		0 => return None,
 		1 => return run_op_local(set::Set, current_instruction, memory, registers, stack),
+		2 => return run_op_local(push::Push, current_instruction, memory, registers, stack),
+		3 => return run_op_local(pop::Pop, current_instruction, memory, registers, stack),
+		4 => return run_op_local(eqop::EqOp, current_instruction, memory, registers, stack),
+		5 => return run_op_local(gt::Gt, current_instruction, memory, registers, stack),
 		6 => return run_op_local(jmp::Jmp, current_instruction, memory, registers, stack),
 		7 => return run_op_local(jt::Jt, current_instruction, memory, registers, stack),
 		8 => return run_op_local(jf::Jf, current_instruction, memory, registers, stack),
+		9 => return run_op_local(add::Add, current_instruction, memory, registers, stack),
+		10 => return run_op_local(mult::Mult, current_instruction, memory, registers, stack),
+		11 => return run_op_local(modop::ModOp, current_instruction, memory, registers, stack),
+		12 => return run_op_local(and::And, current_instruction, memory, registers, stack),
+		13 => return run_op_local(or::Or, current_instruction, memory, registers, stack),
+		14 => return run_op_local(not::Not, current_instruction, memory, registers, stack),
+		15 => return run_op_local(rmem::Rmem, current_instruction, memory, registers, stack),
+		16 => return run_op_local(wmem::Wmem, current_instruction, memory, registers, stack),
+		17 => return run_op_local(call::Call, current_instruction, memory, registers, stack),
+		18 => return run_op_local(ret::Ret, current_instruction, memory, registers, stack),
 		19 => return run_op_local(out::Out, current_instruction, memory, registers, stack),
+		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
 		i => {
 			println!("Instruction not implemented {:?} at offset {:?}",

@@ -83,6 +83,24 @@ mod tests {
 	use super::*;
 
 	#[test]
+	fn set_mem_value() {
+		let expected = vec![0, 1, 0, 0, 0, 0, 0, 0];
+		let mem = vec![1, 32769, 1];
+		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		set(0, &mem, &mut registers);
+		assert_eq!(expected, registers);
+	}
+
+	#[test]
+	fn set_reg_value() {
+		let expected = vec![1, 1, 0, 0, 0, 0, 0, 0];
+		let mem = vec![1, 32769, 32768];
+		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
+		set(0, &mem, &mut registers);
+		assert_eq!(expected, registers);
+	}
+
+	#[test]
 	fn get_mem_or_register_value_mem() {
 		let expected = 1234;
 		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
@@ -122,5 +140,73 @@ mod tests {
 		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
 		let new_loc = jmp(0, &mem, &registers);
 		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jt_mem_zero() {
+		let mem = vec![7, 0, 1234];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jt(0, &mem, &registers);
+		assert_eq!(3, new_loc);
+	}
+
+	#[test]
+	fn jt_mem_notzero() {
+		let expected = 1234;
+		let mem = vec![7, 2, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jt(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jt_reg_zero() {
+		let mem = vec![7, 32768, 1234];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jt(0, &mem, &registers);
+		assert_eq!(3, new_loc);
+	}
+
+	#[test]
+	fn jt_reg_notzero() {
+		let expected = 1234;
+		let mem = vec![7, 32768, expected];
+		let registers = vec![2222, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jt(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jf_mem_zero() {
+		let expected = 1234;
+		let mem = vec![8, 0, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jf(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jf_mem_notzero() {
+		let mem = vec![8, 2, 1234];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jf(0, &mem, &registers);
+		assert_eq!(3, new_loc);
+	}
+
+	#[test]
+	fn jf_reg_zero() {
+		let expected = 1234;
+		let mem = vec![8, 32768, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jf(0, &mem, &registers);
+		assert_eq!(expected, new_loc);
+	}
+
+	#[test]
+	fn jf_reg_notzero() {
+		let mem = vec![8, 32768, 1234];
+		let registers = vec![2222, 0, 0, 0, 0, 0, 0, 0];
+		let new_loc = jf(0, &mem, &registers);
+		assert_eq!(3, new_loc);
 	}
 }

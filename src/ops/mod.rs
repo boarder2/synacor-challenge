@@ -24,12 +24,12 @@ mod noop;
 pub fn run_op(current_instruction: u16,
               memory: &Vec<u16>,
               registers: &mut Vec<u16>,
-				  stack: &mut Vec<u16>)
+              stack: &mut Vec<u16>)
               -> Option<u16> {
 	if current_instruction as usize > memory.len() {
 		return None;
 	}
-	
+
 	match memory[current_instruction as usize] {
 		0 => return None,
 		1 => return run_op_local(set::Set, current_instruction, memory, registers, stack),
@@ -53,7 +53,7 @@ pub fn run_op(current_instruction: u16,
 		19 => return run_op_local(out::Out, current_instruction, memory, registers, stack),
 		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
-		_ => unimplemented!()
+		_ => unimplemented!(),
 	}
 }
 
@@ -64,11 +64,23 @@ pub fn get_mem_or_register_value(memory_value: u16, registers: &Vec<u16>) -> u16
 	memory_value
 }
 
+pub fn set_register(register_raw: u16, registers: &mut Vec<u16>, value: u16) {
+	let register = register_raw - 32768;
+	if let Some(r) = registers.get_mut(register as usize) {
+		println!("Setting register {:?} to {} previous value {}",
+		         register,
+		         value,
+		         r);
+		*r = value;
+	}
+	println!("New registers {:?}", registers);
+}
+
 fn run_op_local<T: operation::Operation>(op: T,
                                          current_instruction: u16,
                                          memory: &Vec<u16>,
                                          registers: &mut Vec<u16>,
-													  stack: &mut Vec<u16>)
+                                         stack: &mut Vec<u16>)
                                          -> Option<u16> {
 	let new_loc = op.run(current_instruction, memory, registers, stack);
 	if op.is_jump() {

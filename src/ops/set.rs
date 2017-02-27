@@ -1,5 +1,5 @@
-use ops::operation::Operation;
 use ops;
+use ops::operation::Operation;
 pub struct Set;
 
 impl Operation for Set {
@@ -9,17 +9,15 @@ impl Operation for Set {
 	fn is_jump(&self) -> bool {
 		false
 	}
-	fn run(&self, current_instruction: u16, memory: &Vec<u16>, registers: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let register = memory[current_instruction as usize + 1] - 32768;
-		let value = ops::get_mem_or_register_value(memory[current_instruction as usize + 2], registers);
-		if let Some(r) = registers.get_mut(register as usize) {
-			println!("Setting register {:?} to {} previous value {}",
-			         register,
-			         value,
-			         r);
-			*r = value;
-		}
-		println!("New registers {:?}", registers);
+	fn run(&self,
+	       current_instruction: u16,
+	       memory: &Vec<u16>,
+	       registers: &mut Vec<u16>,
+	       _: &mut Vec<u16>)
+	       -> usize {
+		let value = ops::get_mem_or_register_value(memory[current_instruction as usize + 2],
+		                                           registers);
+		ops::set_register(memory[current_instruction as usize + 1], registers, value);
 		0
 	}
 }

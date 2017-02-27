@@ -11,7 +11,7 @@ impl Operation for Set {
 	}
 	fn run(&self,
 	       current_instruction: u16,
-	       memory: &Vec<u16>,
+	       memory: &mut Vec<u16>,
 	       registers: &mut Vec<u16>,
 	       _: &mut Vec<u16>)
 	       -> usize {
@@ -30,9 +30,9 @@ mod tests {
 	fn set_mem_value() {
 		let s = Set;
 		let expected = vec![0, 1, 0, 0, 0, 0, 0, 0];
-		let mem = vec![1, 32769, 1];
+		let mut mem = vec![1, 32769, 1];
 		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		s.run(0, &mem, &mut registers, &mut Vec::new());
+		s.run(0, &mut mem, &mut registers, &mut Vec::new());
 		assert_eq!(expected, registers);
 	}
 
@@ -40,9 +40,9 @@ mod tests {
 	fn set_reg_value() {
 		let s = Set;
 		let expected = vec![1, 1, 0, 0, 0, 0, 0, 0];
-		let mem = vec![1, 32769, 32768];
+		let mut mem = vec![1, 32769, 32768];
 		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
-		s.run(0, &mem, &mut registers, &mut Vec::new());
+		s.run(0, &mut mem, &mut registers, &mut Vec::new());
 		assert_eq!(expected, registers);
 	}
 }

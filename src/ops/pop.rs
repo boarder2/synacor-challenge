@@ -9,7 +9,7 @@ impl Operation for Pop {
 	fn is_jump(&self) -> bool {
 		false
 	}
-	fn run(&self, ci: u16, mem: &Vec<u16>, reg: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
+	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
 		ops::set_register(mem[ci as usize + 1], reg, stack.pop().unwrap());
 		0
 	}
@@ -22,11 +22,11 @@ mod tests {
 	#[test]
 	fn pop() {
 		let op = Pop;
-		let mem = vec![2, 32768];
+		let mut mem = vec![2, 32768];
 		let expected = vec![1234, 0, 0, 0, 0, 0, 0, 0];
 		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
 		let mut stack = vec![1234];
-		op.run(0, &mem, &mut registers, &mut stack);
+		op.run(0, &mut mem, &mut registers, &mut stack);
 		assert_eq!(expected, registers);
 		assert_eq!(stack, vec![]);
 	}

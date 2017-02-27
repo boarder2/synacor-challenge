@@ -30,7 +30,7 @@ pub fn run_op(current_instruction: u16,
 		return None;
 	}
 
-	println!("Running op {:?}", memory[current_instruction as usize]);
+	//println!("Running op {:?}", memory[current_instruction as usize]);
 	match memory[current_instruction as usize] {
 		0 => return None,
 		1 => return run_op_local(set::Set, current_instruction, memory, registers, stack),
@@ -55,7 +55,8 @@ pub fn run_op(current_instruction: u16,
 		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
 		x => {
-			println!("{:?} not implemented", x);
+			println!("{:?} not implemented\nRegisters {:?}\nStack {:?}", x, registers, stack);
+			//println!("Memory {:?}", memory);
 			None
 		},
 		//_ => unimplemented!(),

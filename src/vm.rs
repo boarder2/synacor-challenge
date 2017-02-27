@@ -11,6 +11,6 @@ pub fn run(mut memory: &mut Vec<u16>) {
 	println!("{:?}", foo);
 	while let Some(new_op) = ops::run_op(current_op, &mut memory, &mut registers, &mut stack) {
 		current_op = new_op;
-		println!("New op addr {:?}", new_op);
+		//println!("New op addr {:?}", new_op);
 	}
 }

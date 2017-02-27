@@ -52,7 +52,7 @@ mod tests {
 		assert_eq!(expected, registers);
 	}
 
-		#[test]
+	#[test]
 	fn and_reg_off() {
 		let a = And;
 		let mem = vec![9, 32768, 32769, 32770];

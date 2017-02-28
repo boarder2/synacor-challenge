@@ -24,7 +24,8 @@ mod noop;
 pub fn run_op(current_instruction: u16,
               memory: &mut Vec<u16>,
               registers: &mut Vec<u16>,
-              stack: &mut Vec<u16>)
+              stack: &mut Vec<u16>,
+				  output: &mut String)
               -> Option<u16> {
 	if current_instruction as usize > memory.len() {
 		return None;
@@ -51,7 +52,10 @@ pub fn run_op(current_instruction: u16,
 		16 => return run_op_local(wmem::Wmem, current_instruction, memory, registers, stack),
 		17 => return run_op_local(call::Call, current_instruction, memory, registers, stack),
 		18 => return run_op_local(ret::Ret, current_instruction, memory, registers, stack),
-		19 => return run_op_local(out::Out, current_instruction, memory, registers, stack),
+		19 => {
+			output.push(memory[current_instruction as usize + 1] as u8 as char);
+			run_op_local(out::Out, current_instruction, memory, registers, stack)
+		},
 		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
 		x => {

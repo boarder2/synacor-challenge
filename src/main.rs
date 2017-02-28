@@ -3,6 +3,8 @@ extern crate byteorder;
 mod loader;
 mod vm;
 mod ops;
+mod debugger;
+mod debug_state;
 use time::PreciseTime;
 
 fn main() {

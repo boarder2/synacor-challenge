@@ -6,10 +6,10 @@ impl Operation for Ret {
 		2
 	}
 	fn is_jump(&self) -> bool {
-		false//true
+		true
 	}
-	fn run(&self, _: u16, _: &mut Vec<u16>, _: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		0//stack.pop().unwrap() as usize
+	fn run(&self, _: u16, _: &mut Vec<u16>, _: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
+		stack.pop().unwrap() as usize
 	}
 }
 
@@ -17,7 +17,6 @@ impl Operation for Ret {
 mod tests {
 	use super::*;
 
-	#[ignore]
 	#[test]
 	fn ret() {
 		let op = Ret;

@@ -13,7 +13,7 @@ impl Operation for Wmem {
 		let addr = ops::get_mem_or_register_value(mem[ci as usize + 1], reg);
 		let val = ops::get_mem_or_register_value(mem[ci as usize + 2], reg);
 		if let Some(m) = mem.get_mut(addr as usize) {
-			println!("Setting memory {:?} to {:?}", addr, val);
+			//println!("Setting memory {:?} to {:?}", addr, val);
 			*m = val;
 		}
 		0

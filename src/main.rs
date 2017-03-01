@@ -1,16 +1,42 @@
 extern crate time;
 extern crate byteorder;
+extern crate clap;
 mod loader;
 mod vm;
 mod ops;
 mod debugger;
 mod debug_state;
+use clap::{Arg, App};
 use time::PreciseTime;
 
 fn main() {
 	let start = PreciseTime::now();
-	match loader::load_bin("challenge\\challenge.bin".to_string()) {
-		Ok(mut memory) => vm::run(&mut memory),
+	let matches = App::new("Synacor Challenge VM")
+		.version("1.0")
+		.author("Willie Zutz")
+		.about("Runs Synacor Challenge compatible binaries")
+		.arg(Arg::with_name("debug")
+			.short("d")
+			.long("debug")
+			.help("Runs application in interactive debugger"))
+		.arg(Arg::with_name("binary")
+			.short("b")
+			.long("binary")
+			.value_name("FILE")
+			.help("Specify path to binary to run"))
+		.get_matches();
+
+	let bin_path;
+	if let Some(path) = matches.value_of("binary") {
+		bin_path = path;
+	} else {
+		bin_path = "challenge/challenge.bin";
+	}
+
+	let debug = matches.is_present("debug");
+
+	match loader::load_bin(bin_path) {
+		Ok(mut memory) => vm::run(&mut memory, debug),
 		Err(ex) => println!("{:?}", ex),
 	}
 	let end = PreciseTime::now();

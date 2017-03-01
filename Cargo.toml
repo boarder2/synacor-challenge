@@ -5,3 +5,4 @@ authors = ["boarder2"]
 [dependencies]
 time = "*"
 byteorder = "*"
+clap = "2.*"

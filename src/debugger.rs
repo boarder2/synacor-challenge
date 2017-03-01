@@ -12,7 +12,7 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 	}
 	clear_term();
 	println!("Output:\n{}", output);
-	print_summary(ci, mem, reg, stack);
+	print_summary(ci, mem, reg, stack, debug_state);
 	loop {
 		println!("debug ci:{} - stepping:{}>", ci, debug_state.is_stepping());
 		let mut buf = String::new();
@@ -22,33 +22,19 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 					break;
 				}
 				let args: Vec<&str> = buf.trim().split(' ').collect::<Vec<&str>>();
-				if args[0] == "aib" {
-					if args.len() == 2 {
-						match args[1].parse::<u16>() {
-							Ok(inst) => debug_state.add_instruciton_break(inst),
-							Err(_) => {}
-						}
-					}
-				}
-				if args[0] == "summary" {
-					print_summary(ci, mem, reg, stack);
-				}
-				if args[0] == "step" {
-					debug_state.set_stepping(true);
-					break;
-				}
-				if args[0] == "cont" {
-					debug_state.set_stepping(false);
-					break;
-				}
-				if args[0] == "dumpmem" {
-					println!("Memory {:?}", mem);
-				}
-				if args[0] == "mem" {
-					set_mem(ci, mem, &args);
-				}
-				if args[0] == "help" {
-					print_help();
+				match args[0] {
+					"aib" => add_instruction_breakpoint(&args, debug_state),
+					"rib" => remove_instruction_breakpoint(&args, debug_state),
+					"pib" => print_instruction_breakpoints(debug_state),
+					"amw" => add_memory_watch(&args, debug_state),
+					"rmw" => remove_memory_watch(&args, debug_state),
+					"pmw" => print_memory_watches(debug_state, mem),
+					"summary" => print_summary(ci, mem, reg, stack, debug_state),
+					"step" => debug_state.set_stepping(true),
+					"cont" => debug_state.set_stepping(false),
+					"dumpmem" => println!("Memory {:?}", mem),
+					"mem" => set_mem(ci, mem, &args),
+					_ => print_help(),
 				}
 			}
 			Err(_) => break,
@@ -56,15 +42,65 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 	}
 }
 
+fn add_instruction_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.add_instruciton_break(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn remove_instruction_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.remove_instruction_break(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn print_instruction_breakpoints(debug_state: &debug_state::DebugState) {
+	println!("Instruction Breakpoints {:?}",
+	         debug_state.get_instruction_breaks());
+}
+
+fn add_memory_watch(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.add_memory_watch(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn remove_memory_watch(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.remove_memory_watch(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn print_memory_watches(debug_state: &debug_state::DebugState, mem: &Vec<u16>) {
+	let watches = debug_state.get_memory_watches();
+	println!("Memory Watches");
+	for watch in watches {
+		println!("\t{} - {}", watch, mem[watch as usize]);	 
+	}
+}
+
 fn clear_term() {
 	print!("{}[2J", 27 as char);
 }
 
-fn print_summary(ci: u16, mem: &mut Vec<u16>, reg: &Vec<u16>, stack: &Vec<u16>) {
+fn print_summary(ci: u16, mem: &mut Vec<u16>, reg: &Vec<u16>, stack: &Vec<u16>, ds: &debug_state::DebugState) {
 	println!("NextMem {:?}",
 	         mem.into_iter().skip(ci as usize).take(4).collect::<Vec<&mut u16>>());
 	println!("Registers {:?}", reg);
 	println!("Stack {:?}", stack);
+	print_memory_watches(ds, mem);
 }
 
 fn set_mem(ci: u16, mem: &mut Vec<u16>, args: &Vec<&str>) {
@@ -85,10 +121,22 @@ fn set_mem(ci: u16, mem: &mut Vec<u16>, args: &Vec<&str>) {
 fn print_help() {
 	// clear_term();
 	println!("Available commands:");
-	println!("\tsummary");
-	println!("\taib");
-	println!("\tstep");
-	println!("\tcont");
-	println!("\tdumpmem");
-	println!("\tmem <begin> <end> (relative to current instruction position)");
+	println!("\tsummary\tPrint summary with stack and registers");
+	println!("");
+	println!("Breakpoints");
+	println!("\taib <instr>\tAdd instruction breakpoint");
+	println!("\trib <instr>\tRemove instruction breakpoint");
+	println!("\tpib        \tPrint instruction breakpoints");
+	println!("");
+	println!("Execution");
+	println!("\tstep\tSet execution mode to stepping (stop at each new instruction)");
+	println!("\tcont\tSet execution mode to continuous (only breakpoints will stop)");
+	println!("");
+	println!("Memory");
+	println!("\tdumpmem          \tDump entire contents of memory");
+	println!("\tmem <begin> <end>\tPrint section of memory (relative to current instruction \
+	          position)");
+	println!("\tamw <offset>     \tAdd memory watch");
+	println!("\trmw <offset>     \tRemove memory watch");
+	println!("\tpmw <offset>     \tPrint memory watch locations");
 }

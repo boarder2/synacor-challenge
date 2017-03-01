@@ -1,20 +1,14 @@
-
 use debug_state;
 use debugger;
 use ops;
 
 pub fn run(mut memory: &mut Vec<u16>, debug: bool) {
 	let mut current_op = 0;
-	let mut registers = Vec::with_capacity(8);
+	let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
 	let mut stack = Vec::new();
 	let mut output = String::new();
 	let mut debug_state = debug_state::DebugState::new();
 
-	for _ in 0..8 {
-		registers.push(0);
-	}
-	let foo = memory.clone();
-	println!("{:?}", foo);
 	loop {
 		if debug {
 			debugger::step(&mut debug_state,

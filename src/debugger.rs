@@ -23,6 +23,7 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 				}
 				let args: Vec<&str> = buf.trim().split(' ').collect::<Vec<&str>>();
 				match args[0] {
+					//TODO: Add break on instruction type - always break on a particular instruction type.
 					"aib" => add_instruction_breakpoint(&args, debug_state),
 					"rib" => remove_instruction_breakpoint(&args, debug_state),
 					"pib" => print_instruction_breakpoints(debug_state),

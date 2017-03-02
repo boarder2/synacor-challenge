@@ -23,7 +23,7 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 				}
 				let args: Vec<&str> = buf.trim().split(' ').collect::<Vec<&str>>();
 				match args[0] {
-					//TODO: Add break on instruction type - always break on a particular instruction type.
+					// TODO: Add break on instruction type - always break on a particular instruction type.
 					"aib" => add_instruction_breakpoint(&args, debug_state),
 					"rib" => remove_instruction_breakpoint(&args, debug_state),
 					"pib" => print_instruction_breakpoints(debug_state),
@@ -88,7 +88,7 @@ fn print_memory_watches(debug_state: &debug_state::DebugState, mem: &Vec<u16>) {
 	let watches = debug_state.get_memory_watches();
 	println!("Memory Watches");
 	for watch in watches {
-		println!("\t{} - {}", watch, mem[watch as usize]);	 
+		println!("\t{} - {}", watch, mem[watch as usize]);
 	}
 }
 
@@ -96,12 +96,45 @@ fn clear_term() {
 	print!("{}[2J", 27 as char);
 }
 
-fn print_summary(ci: u16, mem: &mut Vec<u16>, reg: &Vec<u16>, stack: &Vec<u16>, ds: &debug_state::DebugState) {
-	println!("NextMem {:?}",
+fn print_summary(ci: u16,
+                 mem: &mut Vec<u16>,
+                 reg: &Vec<u16>,
+                 stack: &Vec<u16>,
+                 ds: &debug_state::DebugState) {
+	println!("Instr [{}] {:?}",
+	         instr_name(mem[ci as usize]),
 	         mem.into_iter().skip(ci as usize).take(4).collect::<Vec<&mut u16>>());
 	println!("Registers {:?}", reg);
 	println!("Stack {:?}", stack);
 	print_memory_watches(ds, mem);
+}
+
+fn instr_name(instr: u16) -> String {
+	match instr {
+		 0 => "halt".to_string(),
+		 1 => "set".to_string(),
+		 2 => "push".to_string(),
+		 3 => "pop".to_string(),
+		 4 => "eq".to_string(),
+		 5 => "gt".to_string(),
+		 6 => "jmp".to_string(),
+		 7 => "jt".to_string(),
+		 8 => "jf".to_string(),
+		 9 => "add".to_string(),
+		 10 => "mult".to_string(),
+		 11 => "mod".to_string(),
+		 12 => "and".to_string(),
+		 13 => "or".to_string(),
+		 14 => "not".to_string(),
+		 15 => "rmem".to_string(),
+		 16 => "wmem".to_string(),
+		 17 => "call".to_string(),
+		 18 => "ret".to_string(),
+		 19 => "out".to_string(),
+		 20 => "in".to_string(),
+		 21 => "noop".to_string(),
+		 _ => "???".to_string(),
+	}
 }
 
 fn set_mem(ci: u16, mem: &mut Vec<u16>, args: &Vec<&str>) {

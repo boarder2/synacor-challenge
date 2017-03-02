@@ -7,7 +7,8 @@ pub fn step(debug_state: &mut debug_state::DebugState,
             mem: &mut Vec<u16>,
             reg: &Vec<u16>,
             stack: &Vec<u16>) {
-	if !debug_state.is_stepping() && !debug_state.is_instruction_break(ci) {
+	if !debug_state.is_stepping() && !debug_state.is_instruction_break(ci) &&
+	   !debug_state.is_instruction_type_break(mem[ci as usize]) {
 		return;
 	}
 	clear_term();
@@ -23,7 +24,9 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 				}
 				let args: Vec<&str> = buf.trim().split(' ').collect::<Vec<&str>>();
 				match args[0] {
-					// TODO: Add break on instruction type - always break on a particular instruction type.
+					"aitb" => add_instruction_type_breakpoint(&args, debug_state),
+					"ritb" => remove_instruction_type_breakpoint(&args, debug_state),
+					"pitb" => print_instruction_type_breakpoints(debug_state),
 					"aib" => add_instruction_breakpoint(&args, debug_state),
 					"rib" => remove_instruction_breakpoint(&args, debug_state),
 					"pib" => print_instruction_breakpoints(debug_state),
@@ -64,6 +67,30 @@ fn remove_instruction_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state
 fn print_instruction_breakpoints(debug_state: &debug_state::DebugState) {
 	println!("Instruction Breakpoints {:?}",
 	         debug_state.get_instruction_breaks());
+}
+
+fn add_instruction_type_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.add_instruciton_type_break(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn remove_instruction_type_breakpoint(args: &Vec<&str>,
+                                      debug_state: &mut debug_state::DebugState) {
+	if args.len() == 2 {
+		match args[1].parse::<u16>() {
+			Ok(inst) => debug_state.remove_instruction_type_break(inst),
+			Err(_) => {}
+		}
+	}
+}
+
+fn print_instruction_type_breakpoints(debug_state: &debug_state::DebugState) {
+	println!("Instruction Type Breakpoints {:?}",
+	         debug_state.get_instruction_type_breaks());
 }
 
 fn add_memory_watch(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
@@ -111,29 +138,29 @@ fn print_summary(ci: u16,
 
 fn instr_name(instr: u16) -> String {
 	match instr {
-		 0 => "halt".to_string(),
-		 1 => "set".to_string(),
-		 2 => "push".to_string(),
-		 3 => "pop".to_string(),
-		 4 => "eq".to_string(),
-		 5 => "gt".to_string(),
-		 6 => "jmp".to_string(),
-		 7 => "jt".to_string(),
-		 8 => "jf".to_string(),
-		 9 => "add".to_string(),
-		 10 => "mult".to_string(),
-		 11 => "mod".to_string(),
-		 12 => "and".to_string(),
-		 13 => "or".to_string(),
-		 14 => "not".to_string(),
-		 15 => "rmem".to_string(),
-		 16 => "wmem".to_string(),
-		 17 => "call".to_string(),
-		 18 => "ret".to_string(),
-		 19 => "out".to_string(),
-		 20 => "in".to_string(),
-		 21 => "noop".to_string(),
-		 _ => "???".to_string(),
+		0 => "halt".to_string(),
+		1 => "set".to_string(),
+		2 => "push".to_string(),
+		3 => "pop".to_string(),
+		4 => "eq".to_string(),
+		5 => "gt".to_string(),
+		6 => "jmp".to_string(),
+		7 => "jt".to_string(),
+		8 => "jf".to_string(),
+		9 => "add".to_string(),
+		10 => "mult".to_string(),
+		11 => "mod".to_string(),
+		12 => "and".to_string(),
+		13 => "or".to_string(),
+		14 => "not".to_string(),
+		15 => "rmem".to_string(),
+		16 => "wmem".to_string(),
+		17 => "call".to_string(),
+		18 => "ret".to_string(),
+		19 => "out".to_string(),
+		20 => "in".to_string(),
+		21 => "noop".to_string(),
+		_ => "???".to_string(),
 	}
 }
 
@@ -158,6 +185,9 @@ fn print_help() {
 	println!("\tsummary\tPrint summary with stack and registers");
 	println!("");
 	println!("Breakpoints");
+	println!("\taitb <instr>\tAdd instruction type breakpoint");
+	println!("\tritb <instr>\tRemove instruction type breakpoint");
+	println!("\tpitb        \tPrint instruction type breakpoints");
 	println!("\taib <instr>\tAdd instruction breakpoint");
 	println!("\trib <instr>\tRemove instruction breakpoint");
 	println!("\tpib        \tPrint instruction breakpoints");

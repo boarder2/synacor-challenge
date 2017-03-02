@@ -1,6 +1,7 @@
 #[derive(Debug)]
 pub struct DebugState {
 	instruction_breaks: Vec<u16>,
+	instruction_type_breaks: Vec<u16>,
 	memory_watches: Vec<u16>,
 	stepping: bool,
 }
@@ -9,6 +10,7 @@ impl DebugState {
 	pub fn new() -> DebugState {
 		DebugState {
 			instruction_breaks: Vec::new(),
+			instruction_type_breaks: Vec::new(),
 			memory_watches: Vec::new(),
 			stepping: true,
 		}
@@ -31,6 +33,25 @@ impl DebugState {
 
 	pub fn get_instruction_breaks(&self) -> Vec<u16> {
 		self.instruction_breaks.clone()
+	}
+
+	pub fn add_instruciton_type_break(&mut self, instr: u16) {
+		self.instruction_type_breaks.push(instr);
+	}
+
+	pub fn is_instruction_type_break(&self, instr: u16) -> bool {
+		self.instruction_type_breaks.as_slice().contains(&instr)
+	}
+
+	pub fn remove_instruction_type_break(&mut self, instr: u16) {
+		let pos = self.instruction_type_breaks.iter().position(|&x| x == instr);
+		if let Some(index) = pos {
+			self.instruction_type_breaks.remove(index);
+		}
+	}
+
+	pub fn get_instruction_type_breaks(&self) -> Vec<u16> {
+		self.instruction_type_breaks.clone()
 	}
 
 	pub fn add_memory_watch(&mut self, instr: u16) {

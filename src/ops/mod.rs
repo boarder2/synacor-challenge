@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+use std::io;
 mod operation;
 mod set;
 mod push;
@@ -18,20 +20,20 @@ mod wmem;
 mod call;
 mod ret;
 mod out;
-mod inop;
 mod noop;
 
 pub fn run_op(current_instruction: u16,
               memory: &mut Vec<u16>,
               registers: &mut Vec<u16>,
               stack: &mut Vec<u16>,
-				  output: &mut String)
+              output: &mut String,
+              input_buffer: &mut VecDeque<u8>)
               -> Option<u16> {
 	if current_instruction as usize > memory.len() {
 		return None;
 	}
 
-	//println!("Running op {:?}", memory[current_instruction as usize]);
+	// println!("Running op {:?}", memory[current_instruction as usize]);
 	match memory[current_instruction as usize] {
 		0 => return None,
 		1 => return run_op_local(set::Set, current_instruction, memory, registers, stack),
@@ -55,14 +57,34 @@ pub fn run_op(current_instruction: u16,
 		19 => {
 			output.push(memory[current_instruction as usize + 1] as u8 as char);
 			run_op_local(out::Out, current_instruction, memory, registers, stack)
-		},
-		20 => return run_op_local(inop::InOp, current_instruction, memory, registers, stack),
+		}
+		20 => {
+			if input_buffer.is_empty() {
+				let mut buf = String::new();
+				println!(">");
+				io::stdin().read_line(&mut buf).unwrap();
+				for ch in buf.chars() {
+					if ch as u8 != 13 {
+						input_buffer.push_back(ch as u8);
+					}
+				}
+			}
+			if let Some(ch) = input_buffer.pop_front() {
+				set_register(memory[current_instruction as usize + 1],
+				             registers,
+				             ch as u16);
+			}
+			return Some(current_instruction + 2);
+		}
 		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
 		x => {
-			println!("{:?} not implemented\nRegisters {:?}\nStack {:?}", x, registers, stack);
-			//println!("Memory {:?}", memory);
+			println!("{:?} not implemented\nRegisters {:?}\nStack {:?}",
+			         x,
+			         registers,
+			         stack);
+			// println!("Memory {:?}", memory);
 			None
-		},
+		}
 		//_ => unimplemented!(),
 	}
 }
@@ -77,7 +99,7 @@ pub fn get_mem_or_register_value(memory_value: u16, registers: &Vec<u16>) -> u16
 pub fn set_register(register_raw: u16, registers: &mut Vec<u16>, value: u16) {
 	let register = register_raw - 32768;
 	if let Some(r) = registers.get_mut(register as usize) {
-		//println!("Setting register {:?} to {:?}", register, value);
+		// println!("Setting register {:?} to {:?}", register, value);
 		*r = value;
 	}
 }

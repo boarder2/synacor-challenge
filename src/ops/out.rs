@@ -1,3 +1,4 @@
+use ops;
 use ops::operation::Operation;
 pub struct Out;
 
@@ -8,8 +9,8 @@ impl Operation for Out {
 	fn is_jump(&self) -> bool {
 		false
 	}
-	fn run(&self, current_instruction: u16, memory: &mut Vec<u16>, _: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		print!("{}", memory[current_instruction as usize + 1] as u8 as char);
+	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
+		print!("{}", ops::get_mem_or_register_value(mem[ci as usize + 1], reg) as u8 as char);
 		0
 	}
 }

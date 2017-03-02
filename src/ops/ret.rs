@@ -24,5 +24,6 @@ mod tests {
 		let mut stack = vec![3333,expected];
 		let result = op.run(0, &mut Vec::new(), &mut Vec::new(), &mut stack);
 		assert_eq!(expected as usize, result);
+		assert_eq!(vec![3333], stack);
 	}
 }

@@ -1,17 +1,15 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Pop;
 
 impl Operation for Pop {
-	fn len(&self) -> usize {
-		2
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
-		ops::set_register(mem[ci as usize + 1], reg, stack.pop().unwrap());
-		0
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let a1 = vm_state.get_mem_raw(ci + 1);
+		let stack_val = vm_state.pop_stack().unwrap();
+		vm_state.set_register(a1, stack_val);
+		vm_state.set_current_instruction(ci + 2);
 	}
 }
 

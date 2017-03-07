@@ -1,5 +1,5 @@
+use vm::state;
+
 pub trait Operation {
-	fn len(&self) -> usize;
-	fn is_jump(&self) -> bool;
-	fn run(&self, u16, &mut Vec<u16>, &mut Vec<u16>, &mut Vec<u16>) -> usize;
+	fn run(&self, &mut state::VMState);
 }

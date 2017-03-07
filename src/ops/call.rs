@@ -1,17 +1,14 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Call;
 
 impl Operation for Call {
-	fn len(&self) -> usize {
-		2
-	}
-	fn is_jump(&self) -> bool {
-		true
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
-		stack.push(ci + 2);
-		ops::get_mem_or_register_value(mem[ci as usize + 1], reg) as usize
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let new_instruction = vm_state.get_mem_or_register_value(ci + 1);
+		vm_state.push_stack(ci + 2);
+		vm_state.set_current_instruction(new_instruction);
 	}
 }
 

@@ -35,10 +35,8 @@ fn main() {
 
 	let debug = matches.is_present("debug");
 
-	match loader::load_bin(bin_path) {
-		Ok(mut memory) => vm::run(&mut memory, debug),
-		Err(ex) => println!("{:?}", ex),
-	}
+	vm::run(bin_path, debug);
+
 	let end = PreciseTime::now();
 	println!("Took {}", start.to(end));
 }

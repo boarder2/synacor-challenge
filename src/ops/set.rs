@@ -1,24 +1,15 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Set;
 
 impl Operation for Set {
-	fn len(&self) -> usize {
-		3
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self,
-	       current_instruction: u16,
-	       memory: &mut Vec<u16>,
-	       registers: &mut Vec<u16>,
-	       _: &mut Vec<u16>)
-	       -> usize {
-		let value = ops::get_mem_or_register_value(memory[current_instruction as usize + 2],
-		                                           registers);
-		ops::set_register(memory[current_instruction as usize + 1], registers, value);
-		0
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val = vm_state.get_mem_or_register_value(ci + 2);
+		let reg = vm_state.get_mem_raw(ci + 1);
+		vm_state.set_register(reg, val);
+		vm_state.set_current_instruction(ci + 3);
 	}
 }
 

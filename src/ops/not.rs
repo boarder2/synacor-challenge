@@ -1,19 +1,16 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Not;
 
 impl Operation for Not {
-	fn len(&self) -> usize {
-		3
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let val = ops::get_mem_or_register_value(mem[ci as usize + 2], reg);
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val = vm_state.get_mem_or_register_value(ci + 2);
+		let reg = vm_state.get_mem_raw(ci + 1);
 		let new_val = (!val) % 32768;
-		ops::set_register(mem[ci as usize + 1], reg, new_val);
-		0
+		vm_state.set_register(reg, new_val);
+		vm_state.set_current_instruction(ci + 3);
 	}
 }
 

@@ -1,19 +1,20 @@
 use debug_state;
 use std::io;
+use vm::state;
 
-pub fn step(debug_state: &mut debug_state::DebugState,
-            output: &str,
-            ci: u16,
-            mem: &mut Vec<u16>,
-            reg: &Vec<u16>,
-            stack: &Vec<u16>) {
+pub fn step(debug_state: &mut debug_state::DebugState, vm_state: &mut state::VMState) {
+
+	let ci = vm_state.get_current_instruction();
+
+	clear_term();
+	println!("Output:\n{}", vm_state.get_console_output());
+	print_summary(vm_state, debug_state);
+
 	if !debug_state.is_stepping() && !debug_state.is_instruction_break(ci) &&
-	   !debug_state.is_instruction_type_break(mem[ci as usize]) {
+	   !debug_state.is_instruction_type_break(vm_state.get_mem_raw(ci)) {
 		return;
 	}
-	clear_term();
-	println!("Output:\n{}", output);
-	print_summary(ci, mem, reg, stack, debug_state);
+	
 	loop {
 		println!("debug ci:{} - stepping:{}>", ci, debug_state.is_stepping());
 		let mut buf = String::new();
@@ -32,12 +33,12 @@ pub fn step(debug_state: &mut debug_state::DebugState,
 					"pib" => print_instruction_breakpoints(debug_state),
 					"amw" => add_memory_watch(&args, debug_state),
 					"rmw" => remove_memory_watch(&args, debug_state),
-					"pmw" => print_memory_watches(debug_state, mem),
-					"summary" => print_summary(ci, mem, reg, stack, debug_state),
+					"pmw" => print_memory_watches(debug_state, vm_state),
+					"summary" => print_summary(vm_state, debug_state),
 					"step" => debug_state.set_stepping(true),
 					"cont" => debug_state.set_stepping(false),
-					"dumpmem" => println!("Memory {:?}", mem),
-					"mem" => set_mem(ci, mem, &args),
+					//"dumpmem" => println!("Memory {:?}", mem),
+					"mem" => show_mem(vm_state, &args),
 					_ => print_help(),
 				}
 			}
@@ -111,11 +112,11 @@ fn remove_memory_watch(args: &Vec<&str>, debug_state: &mut debug_state::DebugSta
 	}
 }
 
-fn print_memory_watches(debug_state: &debug_state::DebugState, mem: &Vec<u16>) {
+fn print_memory_watches(debug_state: &debug_state::DebugState, vms: &state::VMState) {
 	let watches = debug_state.get_memory_watches();
 	println!("Memory Watches");
 	for watch in watches {
-		println!("\t{} - {}", watch, mem[watch as usize]);
+		println!("\t{} - {}", watch, vms.get_mem_raw(watch));
 	}
 }
 
@@ -123,17 +124,15 @@ fn clear_term() {
 	print!("{}[2J", 27 as char);
 }
 
-fn print_summary(ci: u16,
-                 mem: &mut Vec<u16>,
-                 reg: &Vec<u16>,
-                 stack: &Vec<u16>,
-                 ds: &debug_state::DebugState) {
+fn print_summary(vms: &mut state::VMState, ds: &debug_state::DebugState) {
+	let ci = vms.get_current_instruction();
 	println!("Instr [{}] {:?}",
-	         instr_name(mem[ci as usize]),
-	         mem.into_iter().skip(ci as usize).take(4).collect::<Vec<&mut u16>>());
-	println!("Registers {:?}", reg);
-	println!("Stack {:?}", stack);
-	print_memory_watches(ds, mem);
+	         instr_name(vms.get_mem_raw(ci)),
+	         vms.get_mem_segment(ci, 4));
+	//TODO: Add register and stack retrieval
+	// println!("Registers {:?}", reg);
+	// println!("Stack {:?}", stack);
+	print_memory_watches(ds, &vms);
 }
 
 fn instr_name(instr: u16) -> String {
@@ -164,16 +163,13 @@ fn instr_name(instr: u16) -> String {
 	}
 }
 
-fn set_mem(ci: u16, mem: &mut Vec<u16>, args: &Vec<&str>) {
+fn show_mem(vms: &mut state::VMState, args: &Vec<&str>) {
 	if args.len() == 3 {
-		let start = args[1].parse::<i32>().unwrap_or(0) + ci as i32;
-		let len = (ci as i32 + args[2].parse().unwrap_or(0)) - ci as i32;
+		let ci = vms.get_current_instruction() as i32;
+		let start = args[1].parse::<i32>().unwrap_or(0) + ci;
+		let len = (ci + args[2].parse().unwrap_or(0)) - ci;
 		println!("Memory start {:?} end {:?}", start, len + start);
-		println!("{:?}",
-		         mem.into_iter()
-			         .skip(start as usize)
-			         .take(len as usize)
-			         .collect::<Vec<&mut u16>>());
+		println!("{:?}", vms.get_mem_segment(start as u16, len as u16));
 	} else {
 		println!("Invalid instruction");
 	}
@@ -197,7 +193,7 @@ fn print_help() {
 	println!("\tcont\tSet execution mode to continuous (only breakpoints will stop)");
 	println!("");
 	println!("Memory");
-	println!("\tdumpmem          \tDump entire contents of memory");
+	//println!("\tdumpmem          \tDump entire contents of memory");
 	println!("\tmem <begin> <end>\tPrint section of memory (relative to current instruction \
 	          position)");
 	println!("\tamw <offset>     \tAdd memory watch");

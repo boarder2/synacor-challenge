@@ -1,20 +1,19 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Jt;
 
 impl Operation for Jt {
-	fn len(&self) -> usize {
-		3
-	}
-	fn is_jump(&self) -> bool {
-		true
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let val = ops::get_mem_or_register_value(mem[ci as usize + 1], reg);
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val = vm_state.get_mem_or_register_value(ci + 1);
+		let next_instr;
 		if val != 0 {
-			return ops::get_mem_or_register_value(mem[ci as usize + 2], reg) as usize;
+			next_instr = vm_state.get_mem_or_register_value(ci + 2);
+		} else {
+			next_instr = ci + 3;
 		}
-		ci as usize + self.len()
+		vm_state.set_current_instruction(next_instr);
 	}
 }
 

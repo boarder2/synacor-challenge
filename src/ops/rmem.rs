@@ -1,19 +1,15 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Rmem;
 
 impl Operation for Rmem {
-	fn len(&self) -> usize {
-		3
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let val = mem[ops::get_mem_or_register_value(mem[ci as usize + 2], reg) as usize];
-		let addr = mem[ci as usize + 1];
-		ops::set_register(addr, reg, val);
-		0
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val = vm_state.get_mem_raw(vm_state.get_mem_or_register_value(ci + 2));
+		let addr = vm_state.get_mem_raw(ci + 1);
+		vm_state.set_register(addr, val);
+		vm_state.set_current_instruction(ci + 3);
 	}
 }
 

@@ -1,23 +1,17 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Gt;
 
 impl Operation for Gt {
-	fn len(&self) -> usize {
-		4
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let v1 = ops::get_mem_or_register_value(mem[ci as usize + 2], reg);
-		let v2 = ops::get_mem_or_register_value(mem[ci as usize + 3], reg);
-		if v1 > v2 {
-			ops::set_register(mem[ci as usize + 1], reg, 1);
-		} else {
-			ops::set_register(mem[ci as usize + 1], reg, 0);
-		}
-		0
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val1 = vm_state.get_mem_or_register_value(ci + 2);
+		let val2 = vm_state.get_mem_or_register_value(ci + 3);
+		let new_val = if val1 > val2 { 1 } else { 0 };
+		let reg = vm_state.get_mem_raw(ci + 1);
+		vm_state.set_register(reg, new_val);
+		vm_state.set_current_instruction(ci + 4);
 	}
 }
 

@@ -20,45 +20,38 @@ mod wmem;
 mod call;
 mod ret;
 mod out;
-mod noop;
+use vm::state;
 
-pub fn run_op(current_instruction: u16,
-              memory: &mut Vec<u16>,
-              registers: &mut Vec<u16>,
-              stack: &mut Vec<u16>,
-              output: &mut String,
-              input_buffer: &mut VecDeque<u8>)
-              -> Option<u16> {
-	if current_instruction as usize > memory.len() {
-		return None;
+pub fn run_op(vm_state: &mut state::VMState, input_buffer: &mut VecDeque<u8>) -> bool {
+
+	if !vm_state.is_valid_memory_address(vm_state.get_current_instruction()) {
+		return false;
 	}
 
 	// println!("Running op {:?}", memory[current_instruction as usize]);
-	match memory[current_instruction as usize] {
-		0 => return None,
-		1 => return run_op_local(set::Set, current_instruction, memory, registers, stack),
-		2 => return run_op_local(push::Push, current_instruction, memory, registers, stack),
-		3 => return run_op_local(pop::Pop, current_instruction, memory, registers, stack),
-		4 => return run_op_local(eqop::EqOp, current_instruction, memory, registers, stack),
-		5 => return run_op_local(gt::Gt, current_instruction, memory, registers, stack),
-		6 => return run_op_local(jmp::Jmp, current_instruction, memory, registers, stack),
-		7 => return run_op_local(jt::Jt, current_instruction, memory, registers, stack),
-		8 => return run_op_local(jf::Jf, current_instruction, memory, registers, stack),
-		9 => return run_op_local(add::Add, current_instruction, memory, registers, stack),
-		10 => return run_op_local(mult::Mult, current_instruction, memory, registers, stack),
-		11 => return run_op_local(modop::ModOp, current_instruction, memory, registers, stack),
-		12 => return run_op_local(and::And, current_instruction, memory, registers, stack),
-		13 => return run_op_local(or::Or, current_instruction, memory, registers, stack),
-		14 => return run_op_local(not::Not, current_instruction, memory, registers, stack),
-		15 => return run_op_local(rmem::Rmem, current_instruction, memory, registers, stack),
-		16 => return run_op_local(wmem::Wmem, current_instruction, memory, registers, stack),
-		17 => return run_op_local(call::Call, current_instruction, memory, registers, stack),
-		18 => return run_op_local(ret::Ret, current_instruction, memory, registers, stack),
-		19 => {
-			output.push(memory[current_instruction as usize + 1] as u8 as char);
-			run_op_local(out::Out, current_instruction, memory, registers, stack)
-		}
+	match vm_state.get_mem_or_register_value(vm_state.get_current_instruction()) {
+		0 => return false,
+		1 => run_op_local(set::Set, vm_state),
+		2 => run_op_local(push::Push, vm_state),
+		3 => run_op_local(pop::Pop, vm_state),
+		4 => run_op_local(eqop::EqOp, vm_state),
+		5 => run_op_local(gt::Gt, vm_state),
+		6 => run_op_local(jmp::Jmp, vm_state),
+		7 => run_op_local(jt::Jt, vm_state),
+		8 => run_op_local(jf::Jf, vm_state),
+		9 => run_op_local(add::Add, vm_state),
+		10 => run_op_local(mult::Mult, vm_state),
+		11 => run_op_local(modop::ModOp, vm_state),
+		12 => run_op_local(and::And, vm_state),
+		13 => run_op_local(or::Or, vm_state),
+		14 => run_op_local(not::Not, vm_state),
+		15 => run_op_local(rmem::Rmem, vm_state),
+		16 => run_op_local(wmem::Wmem, vm_state),
+		17 => run_op_local(call::Call, vm_state),
+		18 => run_op_local(ret::Ret, vm_state),
+		19 => run_op_local(out::Out, vm_state),
 		20 => {
+			let ci = vm_state.get_current_instruction();
 			if input_buffer.is_empty() {
 				let mut buf = String::new();
 				println!(">");
@@ -70,78 +63,23 @@ pub fn run_op(current_instruction: u16,
 				}
 			}
 			if let Some(ch) = input_buffer.pop_front() {
-				set_register(memory[current_instruction as usize + 1],
-				             registers,
-				             ch as u16);
+				let reg_raw = vm_state.get_mem_raw(ci + 1);
+				vm_state.set_register(reg_raw, ch as u16);
 			}
-			return Some(current_instruction + 2);
+			vm_state.set_current_instruction(ci + 2);
 		}
-		21 => return run_op_local(noop::Noop, current_instruction, memory, registers, stack),
+		21 => {
+			let ci = vm_state.get_current_instruction();
+			vm_state.set_current_instruction(ci + 1)
+		}
 		x => {
-			println!("{:?} not implemented\nRegisters {:?}\nStack {:?}",
-			         x,
-			         registers,
-			         stack);
-			// println!("Memory {:?}", memory);
-			None
+			println!("{:?} not implemented", x);
+			return false;
 		}
-		//_ => unimplemented!(),
 	}
+	return true;
 }
 
-pub fn get_mem_or_register_value(memory_value: u16, registers: &Vec<u16>) -> u16 {
-	if memory_value >= 32768 {
-		return registers[memory_value as usize - 32768];
-	}
-	memory_value
-}
-
-pub fn set_register(register_raw: u16, registers: &mut Vec<u16>, value: u16) {
-	let register = register_raw - 32768;
-	if let Some(r) = registers.get_mut(register as usize) {
-		// println!("Setting register {:?} to {:?}", register, value);
-		*r = value;
-	}
-}
-
-fn run_op_local<T: operation::Operation>(op: T,
-                                         current_instruction: u16,
-                                         memory: &mut Vec<u16>,
-                                         registers: &mut Vec<u16>,
-                                         stack: &mut Vec<u16>)
-                                         -> Option<u16> {
-	let new_loc = op.run(current_instruction, memory, registers, stack);
-	if op.is_jump() {
-		return Some(new_loc as u16);
-	}
-	Some(current_instruction + op.len() as u16)
-}
-
-#[cfg(test)]
-mod tests {
-	use super::*;
-
-	#[test]
-	fn get_mem_or_register_value_mem() {
-		let expected = 1234;
-		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let result = get_mem_or_register_value(expected, &registers);
-		assert_eq!(expected, result);
-	}
-
-	#[test]
-	fn get_mem_or_register_value_reg_0() {
-		let expected = 1234;
-		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
-		let result = get_mem_or_register_value(32768, &registers);
-		assert_eq!(expected, result);
-	}
-
-	#[test]
-	fn get_mem_or_register_value_reg_8() {
-		let expected = 1234;
-		let registers = vec![0, 0, 0, 0, 0, 0, 0, expected];
-		let result = get_mem_or_register_value(32775, &registers);
-		assert_eq!(expected, result);
-	}
+fn run_op_local<T: operation::Operation>(op: T, vm_state: &mut state::VMState) {
+	op.run(vm_state);
 }

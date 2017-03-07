@@ -1,16 +1,12 @@
 use ops::operation::Operation;
-use ops;
+
+use vm::state;
 pub struct Jmp;
 
 impl Operation for Jmp {
-	fn len(&self) -> usize {
-		2
-	}
-	fn is_jump(&self) -> bool {
-		true
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		ops::get_mem_or_register_value(mem[ci as usize + 1], reg) as usize
+	fn run(&self, vm_state: &mut state::VMState) {
+		let next_instr = vm_state.get_mem_or_register_value(vm_state.get_current_instruction() + 1);
+		vm_state.set_current_instruction(next_instr);
 	}
 }
 

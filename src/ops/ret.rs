@@ -1,15 +1,11 @@
 use ops::operation::Operation;
+use vm::state;
 pub struct Ret;
 
 impl Operation for Ret {
-	fn len(&self) -> usize {
-		2
-	}
-	fn is_jump(&self) -> bool {
-		true
-	}
-	fn run(&self, _: u16, _: &mut Vec<u16>, _: &mut Vec<u16>, stack: &mut Vec<u16>) -> usize {
-		stack.pop().unwrap() as usize
+	fn run(&self, vm_state: &mut state::VMState) {
+		let next_instr = vm_state.pop_stack().unwrap();
+		vm_state.set_current_instruction(next_instr);
 	}
 }
 
@@ -21,7 +17,7 @@ mod tests {
 	fn ret() {
 		let op = Ret;
 		let expected = 1234;
-		let mut stack = vec![3333,expected];
+		let mut stack = vec![3333, expected];
 		let result = op.run(0, &mut Vec::new(), &mut Vec::new(), &mut stack);
 		assert_eq!(expected as usize, result);
 		assert_eq!(vec![3333], stack);

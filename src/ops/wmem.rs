@@ -1,22 +1,15 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Wmem;
 
 impl Operation for Wmem {
-	fn len(&self) -> usize {
-		3
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let addr = ops::get_mem_or_register_value(mem[ci as usize + 1], reg);
-		let val = ops::get_mem_or_register_value(mem[ci as usize + 2], reg);
-		if let Some(m) = mem.get_mut(addr as usize) {
-			//println!("Setting memory {:?} to {:?}", addr, val);
-			*m = val;
-		}
-		0
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let addr = vm_state.get_mem_or_register_value(ci + 1);
+		let val = vm_state.get_mem_or_register_value(ci + 2);
+		vm_state.set_memory(addr, val);
+		vm_state.set_current_instruction(ci + 3);
 	}
 }
 

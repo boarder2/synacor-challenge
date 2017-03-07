@@ -1,20 +1,17 @@
-use ops;
+
 use ops::operation::Operation;
+use vm::state;
 pub struct Mult;
 
 impl Operation for Mult {
-	fn len(&self) -> usize {
-		4
-	}
-	fn is_jump(&self) -> bool {
-		false
-	}
-	fn run(&self, ci: u16, mem: &mut Vec<u16>, reg: &mut Vec<u16>, _: &mut Vec<u16>) -> usize {
-		let val1 = ops::get_mem_or_register_value(mem[ci as usize + 2], reg);
-		let val2 = ops::get_mem_or_register_value(mem[ci as usize + 3], reg);
+	fn run(&self, vm_state: &mut state::VMState) {
+		let ci = vm_state.get_current_instruction();
+		let val1 = vm_state.get_mem_or_register_value(ci + 2);
+		let val2 = vm_state.get_mem_or_register_value(ci + 3);
+		let reg = vm_state.get_mem_raw(ci + 1);
 		let new_val = ((val1 as u32 * val2 as u32) % 32768) as u16;
-		ops::set_register(mem[ci as usize + 1], reg, new_val);
-		0
+		vm_state.set_register(reg, new_val);
+		vm_state.set_current_instruction(ci + 4);
 	}
 }
 

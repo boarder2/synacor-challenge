@@ -30,7 +30,12 @@ impl VMState {
 	}
 
 	pub fn get_mem_segment(&mut self, start: u16, length: u16) -> Vec<u16> {
-		self.memory.clone().into_iter().skip(start as usize).take(length as usize).collect::<Vec<u16>>()
+		self.memory
+			.clone()
+			.into_iter()
+			.skip(start as usize)
+			.take(length as usize)
+			.collect::<Vec<u16>>()
 	}
 
 	pub fn get_mem_or_register_value(&self, index: u16) -> u16 {
@@ -84,27 +89,37 @@ impl VMState {
 mod tests {
 	use super::*;
 
-	// #[test]
-	// fn get_mem_or_register_value_mem() {
-	// 	let expected = 1234;
-	// 	let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-	// 	let result = get_mem_or_register_value(expected, &registers);
-	// 	assert_eq!(expected, result);
-	// }
+	#[test]
+	fn console_output() {
+		let expected = "abc";
+		let mut state = VMState::new(vec![]);
+		for ch in expected.chars() {
+			state.add_to_console_output(ch);
+		}
+		assert_eq!(expected, state.get_console_output());
+	}
 
-	// #[test]
-	// fn get_mem_or_register_value_reg_0() {
-	// 	let expected = 1234;
-	// 	let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
-	// 	let result = get_mem_or_register_value(32768, &registers);
-	// 	assert_eq!(expected, result);
-	// }
+	#[test]
+	fn invalid_memory_address() {
+		let mem = vec![1, 2, 3];
+		let len = mem.len();
+		let mut state = VMState::new(mem);
+		assert_eq!(false, state.is_valid_memory_address(len as u16 + 1));
+	}
 
-	// #[test]
-	// fn get_mem_or_register_value_reg_8() {
-	// 	let expected = 1234;
-	// 	let registers = vec![0, 0, 0, 0, 0, 0, 0, expected];
-	// 	let result = get_mem_or_register_value(32775, &registers);
-	// 	assert_eq!(expected, result);
-	// }
+	#[test]
+	fn valid_memory_address() {
+		let mem = vec![1, 2, 3];
+		let len = mem.len();
+		let mut state = VMState::new(mem);
+		assert_eq!(true, state.is_valid_memory_address(len as u16));
+	}
+
+	#[test]
+	fn get_mem_segment() {
+		let mem = vec![1, 2, 3, 4, 5];
+		let expected = vec![2, 3, 4];
+		let mut state = VMState::new(mem);
+		assert_eq!(expected, state.get_mem_segment(1, 3));
+	}
 }

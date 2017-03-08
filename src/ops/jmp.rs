@@ -13,23 +13,27 @@ impl Operation for Jmp {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
+	
 	#[test]
 	fn jmp_mem() {
 		let j = Jmp;
 		let expected = 2;
-		let mut mem = vec![6, expected];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected as usize, new_loc);
+		let mem = vec![6, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
 	}
 
 	#[test]
 	fn jmp_reg() {
 		let j = Jmp;
 		let expected = 19;
-		let mut mem = vec![6, 32768];
-		let mut registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected as usize, new_loc);
+		let mem = vec![6, 32768];
+		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
 	}
 }

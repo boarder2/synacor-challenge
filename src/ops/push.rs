@@ -15,26 +15,27 @@ impl Operation for Push {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn push_mem() {
 		let op = Push;
-		let mut mem = vec![2, 1234];
-		let expected = vec![1234];
-		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
-		let mut stack = Vec::new();
-		op.run(0, &mut mem, &mut registers, &mut stack);
-		assert_eq!(expected, stack);
+		let expected = 1234;
+		let mem = vec![2, expected];
+		let registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(Some(expected), state.pop_stack());
 	}
 
 	#[test]
 	fn push_reg() {
 		let op = Push;
-		let mut mem = vec![2, 32768];
-		let expected = vec![1234];
-		let mut registers = vec![1234, 0, 0, 0, 0, 0, 0, 0];
-		let mut stack = Vec::new();
-		op.run(0, &mut mem, &mut registers, &mut stack);
-		assert_eq!(expected, stack);
+		let expected = 1234;
+		let mem = vec![2, 32768];
+		let registers = vec![expected, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(Some(expected), state.pop_stack());
 	}
 }

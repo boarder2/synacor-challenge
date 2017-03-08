@@ -16,16 +16,18 @@ impl Operation for Pop {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn pop() {
 		let op = Pop;
-		let mut mem = vec![2, 32768];
+		let mem = vec![2, 32768];
 		let expected = vec![1234, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
+		let registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
 		let mut stack = vec![1234];
-		op.run(0, &mut mem, &mut registers, &mut stack);
-		assert_eq!(expected, registers);
-		assert_eq!(stack, vec![]);
+		let mut state = state_helper::generate_vm_state_mem_reg_stack(mem, registers, stack);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
+		assert_eq!(None, state.pop_stack());
 	}
 }

@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct Not;
@@ -17,24 +16,27 @@ impl Operation for Not {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn not_mem() {
 		let op = Not;
-		let mut mem = vec![0, 32768, 0];
+		let mem = vec![0, 32768, 0];
 		let expected = vec![32767, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		op.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn not_reg() {
 		let op = Not;
-		let mut mem = vec![0, 32768, 32769];
+		let mem = vec![0, 32768, 32769];
 		let expected = vec![32767, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		op.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 }

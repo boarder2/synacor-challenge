@@ -12,14 +12,16 @@ impl Operation for Ret {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn ret() {
 		let op = Ret;
 		let expected = 1234;
-		let mut stack = vec![3333, expected];
-		let result = op.run(0, &mut Vec::new(), &mut Vec::new(), &mut stack);
-		assert_eq!(expected as usize, result);
-		assert_eq!(vec![3333], stack);
+		let stack = vec![3333, expected];
+		let mut state = state_helper::generate_vm_state_mem_reg_stack(vec![], vec![], stack);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
+		assert_eq!(Some(3333), state.pop_stack());
 	}
 }

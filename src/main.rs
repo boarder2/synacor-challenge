@@ -5,6 +5,7 @@ mod loader;
 mod vm;
 mod ops;
 mod debugger;
+mod test;
 mod debug_state;
 use clap::{Arg, App};
 use time::PreciseTime;

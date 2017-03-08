@@ -20,9 +20,9 @@ mod tests {
 	// #[test]
 	// fn wmem_mem() {
 	// 	let op = Wmem;
-	// 	let mut mem = vec![0, 3, 3, 0];
+	// 	let mem = vec![0, 3, 3, 0];
 	// 	let expected = vec![3, 0, 0, 0, 0, 0, 0, 0];
-	// 	let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+	// 	let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
 	// 	op.run(0, &mut mem, &mut registers, &mut Vec::new());
 	// 	assert_eq!(expected, registers);
 	// }
@@ -30,9 +30,9 @@ mod tests {
 	// #[test]
 	// fn rmem_reg() {
 	// 	let op = Wmem;
-	// 	let mut mem = vec![0, 32768, 32769, 3];
+	// 	let mem = vec![0, 32768, 32769, 3];
 	// 	let expected = vec![3, 3, 0, 0, 0, 0, 0, 0];
-	// 	let mut registers = vec![0, 3, 0, 0, 0, 0, 0, 0];
+	// 	let registers = vec![0, 3, 0, 0, 0, 0, 0, 0];
 	// 	op.run(0, &mut mem, &mut registers, &mut Vec::new());
 	// 	assert_eq!(expected, registers);
 	// }

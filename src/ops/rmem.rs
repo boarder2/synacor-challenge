@@ -16,24 +16,27 @@ impl Operation for Rmem {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn rmem_mem() {
 		let op = Rmem;
-		let mut mem = vec![0, 32768, 3, 3];
+		let mem = vec![0, 32768, 3, 3];
 		let expected = vec![3, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		op.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn rmem_reg() {
 		let op = Rmem;
-		let mut mem = vec![0, 32768, 32769, 3];
+		let mem = vec![0, 32768, 32769, 3];
 		let expected = vec![3, 3, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 3, 0, 0, 0, 0, 0, 0];
-		op.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let registers = vec![0, 3, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 }

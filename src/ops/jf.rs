@@ -20,42 +20,47 @@ impl Operation for Jf {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn jf_mem_zero() {
 		let j = Jf;
 		let expected = 1234;
-		let mut mem = vec![8, 0, expected];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected as usize, new_loc);
+		let mem = vec![8, 0, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
 	}
 
 	#[test]
 	fn jf_mem_notzero() {
 		let j = Jf;
-		let mut mem = vec![8, 2, 1234];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(3, new_loc);
+		let mem = vec![8, 2, 1234];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(3, state.get_current_instruction());
 	}
 
 	#[test]
 	fn jf_reg_zero() {
 		let j = Jf;
 		let expected = 1234;
-		let mut mem = vec![8, 32768, expected];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected as usize, new_loc);
+		let mem = vec![8, 32768, expected];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
 	}
 
 	#[test]
 	fn jf_reg_notzero() {
 		let j = Jf;
-		let mut mem = vec![8, 32768, 1234];
-		let mut registers = vec![2222, 0, 0, 0, 0, 0, 0, 0];
-		let new_loc = j.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(3, new_loc);
+		let mem = vec![8, 32768, 1234];
+		let registers = vec![2222, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		j.run(&mut state);
+		assert_eq!(3, state.get_current_instruction());
 	}
 }

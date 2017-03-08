@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct And;
@@ -18,44 +17,43 @@ impl Operation for And {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn and_mem_on() {
 		let a = And;
-		let mut mem = vec![9, 32768, 2, 6];
+		let mut state = state_helper::generate_vm_state_mem(vec![9, 32768, 2, 6]);
 		let expected = vec![2, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		a.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		a.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn and_mem_off() {
 		let a = And;
-		let mut mem = vec![9, 32768, 2, 4];
+		let mut state = state_helper::generate_vm_state_mem(vec![9, 32768, 2, 4]);
 		let expected = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		a.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		a.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn and_reg_on() {
 		let a = And;
-		let mut mem = vec![9, 32768, 32769, 32770];
+		let mut state = state_helper::generate_vm_state_mem_reg(vec![9, 32768, 32769, 32770],
+		                                                        vec![0, 2, 6, 0, 0, 0, 0, 0]);
 		let expected = vec![2, 2, 6, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 2, 6, 0, 0, 0, 0, 0];
-		a.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		a.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn and_reg_off() {
 		let a = And;
-		let mut mem = vec![9, 32768, 32769, 32770];
+		let mut state = state_helper::generate_vm_state_mem_reg(vec![9, 32768, 32769, 32770],
+		                                                        vec![0, 2, 4, 0, 0, 0, 0, 0]);
 		let expected = vec![0, 2, 4, 0, 0, 0, 0, 0];
-		let mut registers = vec![0, 2, 4, 0, 0, 0, 0, 0];
-		a.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		a.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 }

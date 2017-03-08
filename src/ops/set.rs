@@ -16,24 +16,27 @@ impl Operation for Set {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn set_mem_value() {
-		let s = Set;
+		let op = Set;
 		let expected = vec![0, 1, 0, 0, 0, 0, 0, 0];
-		let mut mem = vec![1, 32769, 1];
-		let mut registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-		s.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let mem = vec![1, 32769, 1];
+		let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 
 	#[test]
 	fn set_reg_value() {
-		let s = Set;
+		let op = Set;
 		let expected = vec![1, 1, 0, 0, 0, 0, 0, 0];
-		let mut mem = vec![1, 32769, 32768];
-		let mut registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
-		s.run(0, &mut mem, &mut registers, &mut Vec::new());
-		assert_eq!(expected, registers);
+		let mem = vec![1, 32769, 32768];
+		let registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, registers);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_registers());
 	}
 }

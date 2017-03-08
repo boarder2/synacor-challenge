@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct Call;
@@ -15,27 +14,26 @@ impl Operation for Call {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
 	#[test]
 	fn call_mem() {
 		let op = Call;
 		let expected = 1234;
-		let mut mem = vec![0, expected];
-		let mut stack = vec![];
-		let result = op.run(0, &mut mem, &mut Vec::new(), &mut stack);
-		assert_eq!(expected as usize, result);
-		assert_eq!(stack[0], 2);
+		let mut state = state_helper::generate_vm_state_mem(vec![0, expected]);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
+		assert_eq!(2, state.pop_stack().unwrap());
 	}
 
 	#[test]
 	fn call_reg() {
 		let op = Call;
 		let expected = 1234;
-		let mut mem = vec![0, 32768];
-		let mut stack = vec![];
-		let mut reg = vec![expected, 0, 0, 0, 0, 0, 0, 0];
-		let result = op.run(0, &mut mem, &mut reg, &mut stack);
-		assert_eq!(expected as usize, result);
-		assert_eq!(stack[0], 2);
+		let mut state = state_helper::generate_vm_state_mem_reg(vec![0, 32768],
+		                                                        vec![expected, 0, 0, 0, 0, 0, 0, 0]);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_current_instruction());
+		assert_eq!(2, state.pop_stack().unwrap());
 	}
 }

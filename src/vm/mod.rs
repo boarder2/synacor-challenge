@@ -1,11 +1,10 @@
 pub mod state;
-use ops;
 use debug_state;
-use debugger;
+use debugger::debugger;
 use loader;
+use ops;
 
 use std::collections::VecDeque;
-
 
 pub fn run(bin_path: &str, debug: bool) {
 	match loader::load_bin(bin_path) {

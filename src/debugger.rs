@@ -50,7 +50,7 @@ pub fn step(debug_state: &mut debug_state::DebugState, vm_state: &mut state::VMS
 fn add_instruction_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
 	if args.len() == 2 {
 		match args[1].parse::<u16>() {
-			Ok(inst) => debug_state.add_instruciton_break(inst),
+			Ok(inst) => debug_state.add_instruction_type_break(inst),
 			Err(_) => {}
 		}
 	}
@@ -73,7 +73,7 @@ fn print_instruction_breakpoints(debug_state: &debug_state::DebugState) {
 fn add_instruction_type_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
 	if args.len() == 2 {
 		match args[1].parse::<u16>() {
-			Ok(inst) => debug_state.add_instruciton_type_break(inst),
+			Ok(inst) => debug_state.add_instruction_type_break(inst),
 			Err(_) => {}
 		}
 	}

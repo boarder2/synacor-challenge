@@ -16,7 +16,7 @@ impl DebugState {
 		}
 	}
 
-	pub fn add_instruciton_break(&mut self, instr: u16) {
+	pub fn add_instruction_break(&mut self, instr: u16) {
 		self.instruction_breaks.push(instr);
 	}
 
@@ -35,7 +35,7 @@ impl DebugState {
 		self.instruction_breaks.clone()
 	}
 
-	pub fn add_instruciton_type_break(&mut self, instr: u16) {
+	pub fn add_instruction_type_break(&mut self, instr: u16) {
 		self.instruction_type_breaks.push(instr);
 	}
 
@@ -79,5 +79,53 @@ impl DebugState {
 
 	pub fn set_stepping(&mut self, val: bool) {
 		self.stepping = val;
+	}
+}
+
+#[cfg(test)]
+mod tests {
+	use super::*;
+
+	#[test]
+	fn stepping() {
+		let mut ds = DebugState::new();
+		ds.set_stepping(false);
+		assert_eq!(false, ds.is_stepping());
+	}
+
+	#[test]
+	fn memory_watches() {
+		let mut ds = DebugState::new();
+		let mut watches = vec![1, 2, 3];
+		for w in watches.clone() {
+			ds.add_memory_watch(w);
+		}
+		assert_eq!(watches, ds.get_memory_watches());
+		ds.remove_memory_watch(watches.pop().unwrap());
+		assert_eq!(watches, ds.get_memory_watches());
+	}
+
+	#[test]
+	fn instruction_type_breaks() {
+		let mut ds = DebugState::new();
+		let mut arr = vec![1, 2, 3];
+		for a in arr.clone() {
+			ds.add_instruction_type_break(a);
+		}
+		assert_eq!(arr, ds.get_instruction_type_breaks());
+		ds.remove_instruction_type_break(arr.pop().unwrap());
+		assert_eq!(arr, ds.get_instruction_type_breaks());
+	}
+
+	#[test]
+	fn instruction_breaks() {
+		let mut ds = DebugState::new();
+		let mut arr = vec![1, 2, 3];
+		for a in arr.clone() {
+			ds.add_instruction_break(a);
+		}
+		assert_eq!(arr, ds.get_instruction_breaks());
+		ds.remove_instruction_break(arr.pop().unwrap());
+		assert_eq!(arr, ds.get_instruction_breaks());
 	}
 }

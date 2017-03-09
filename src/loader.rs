@@ -14,3 +14,23 @@ pub fn load_bin(path: &str) -> Result<Vec<u16>, io::Error> {
 	}
 	Ok(result)
 }
+
+#[cfg(test)]
+mod tests {
+	use std::fs;
+	use std::fs::File;
+	use std::io::Write;
+
+	#[test]
+	fn test_load() {
+		let expected = vec![1];
+		let file_path = "./test_load.bin";
+		let mut f = File::create(file_path).unwrap();
+		let mut buf = [1 as u8, 0];
+		f.write_all(&mut buf).unwrap();
+		f.flush().unwrap();
+		let mem = super::load_bin(file_path).unwrap();
+		assert_eq!(expected, mem);
+		fs::remove_file(file_path).unwrap();
+	}
+}

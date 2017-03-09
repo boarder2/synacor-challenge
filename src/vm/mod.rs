@@ -27,3 +27,21 @@ pub fn run(bin_path: &str, debug: bool) {
 		Err(ex) => println!("{:?}", ex),
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	use std::fs;
+	use std::fs::File;
+	use std::io::Write;
+
+	#[test]
+	fn test_run() {
+		let file_path = "./test_run.bin";
+		let mut f = File::create(file_path).unwrap();
+		let mut buf = [0 as u8, 0];
+		f.write_all(&mut buf).unwrap();
+		f.flush().unwrap();
+		super::run(file_path, false);
+		fs::remove_file(file_path).unwrap();
+	}
+}

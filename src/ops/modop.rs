@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct ModOp;

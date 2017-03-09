@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct Jt;
@@ -21,7 +20,7 @@ impl Operation for Jt {
 mod tests {
 	use super::*;
 	use test::state_helper;
-	
+
 	#[test]
 	fn jt_mem_zero() {
 		let j = Jt;

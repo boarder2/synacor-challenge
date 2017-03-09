@@ -1,4 +1,3 @@
-
 use ops::operation::Operation;
 use vm::state;
 pub struct Mult;
@@ -19,7 +18,7 @@ impl Operation for Mult {
 mod tests {
 	use super::*;
 	use test::state_helper;
-	
+
 	#[test]
 	fn mult_mem() {
 		let op = Mult;

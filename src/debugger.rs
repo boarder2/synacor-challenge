@@ -3,7 +3,7 @@ pub mod debugger {
 	use debug_state;
 	use vm::state;
 
-	pub fn step(_: &mut debug_state::DebugState, _: &mut state::VMState) { }
+	pub fn step(_: &mut debug_state::DebugState, _: &mut state::VMState) {}
 }
 
 #[cfg(not(test))]

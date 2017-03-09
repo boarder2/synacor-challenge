@@ -14,7 +14,7 @@ impl Operation for Jmp {
 mod tests {
 	use super::*;
 	use test::state_helper;
-	
+
 	#[test]
 	fn jmp_mem() {
 		let j = Jmp;

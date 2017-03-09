@@ -103,7 +103,7 @@ mod tests {
 	fn invalid_memory_address() {
 		let mem = vec![1, 2, 3];
 		let len = mem.len();
-		let mut state = VMState::new(mem);
+		let state = VMState::new(mem);
 		assert_eq!(false, state.is_valid_memory_address(len as u16 + 1));
 	}
 
@@ -111,7 +111,7 @@ mod tests {
 	fn valid_memory_address() {
 		let mem = vec![1, 2, 3];
 		let len = mem.len();
-		let mut state = VMState::new(mem);
+		let state = VMState::new(mem);
 		assert_eq!(true, state.is_valid_memory_address(len as u16));
 	}
 

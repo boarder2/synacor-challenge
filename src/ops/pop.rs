@@ -24,7 +24,7 @@ mod tests {
 		let mem = vec![2, 32768];
 		let expected = vec![1234, 0, 0, 0, 0, 0, 0, 0];
 		let registers = vec![1, 0, 0, 0, 0, 0, 0, 0];
-		let mut stack = vec![1234];
+		let stack = vec![1234];
 		let mut state = state_helper::generate_vm_state_mem_reg_stack(mem, registers, stack);
 		op.run(&mut state);
 		assert_eq!(expected, state.get_registers());

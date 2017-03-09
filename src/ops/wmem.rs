@@ -16,24 +16,48 @@ impl Operation for Wmem {
 #[cfg(test)]
 mod tests {
 	use super::*;
+	use test::state_helper;
 
-	// #[test]
-	// fn wmem_mem() {
-	// 	let op = Wmem;
-	// 	let mem = vec![0, 3, 3, 0];
-	// 	let expected = vec![3, 0, 0, 0, 0, 0, 0, 0];
-	// 	let registers = vec![0, 0, 0, 0, 0, 0, 0, 0];
-	// 	op.run(0, &mut mem, &mut registers, &mut Vec::new());
-	// 	assert_eq!(expected, registers);
-	// }
+	#[test]
+	fn wmem_mem_value_mem_loc() {
+		let op = Wmem;
+		let expected = 1234;
+		let mem = vec![1, 3, expected, 0];
+		let mut state = state_helper::generate_vm_state_mem(mem);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_mem_raw(3));
+	}
 
-	// #[test]
-	// fn rmem_reg() {
-	// 	let op = Wmem;
-	// 	let mem = vec![0, 32768, 32769, 3];
-	// 	let expected = vec![3, 3, 0, 0, 0, 0, 0, 0];
-	// 	let registers = vec![0, 3, 0, 0, 0, 0, 0, 0];
-	// 	op.run(0, &mut mem, &mut registers, &mut Vec::new());
-	// 	assert_eq!(expected, registers);
-	// }
+	#[test]
+	fn wmem_reg_value_mem_loc() {
+		let op = Wmem;
+		let expected = 1234;
+		let mem = vec![1, 3, 32768, 0];
+		let reg = vec![expected];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, reg);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_mem_raw(3));
+	}
+
+	#[test]
+	fn wmem_mem_value_reg_loc() {
+		let op = Wmem;
+		let expected = 1234;
+		let mem = vec![1, 32768, expected, 0];
+		let reg = vec![3];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, reg);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_mem_raw(3));
+	}
+
+	#[test]
+	fn wmem_reg_value_reg_loc() {
+		let op = Wmem;
+		let expected = 1234;
+		let mem = vec![1, 32769, 32768, 0];
+		let reg = vec![expected, 3];
+		let mut state = state_helper::generate_vm_state_mem_reg(mem, reg);
+		op.run(&mut state);
+		assert_eq!(expected, state.get_mem_raw(3));
+	}
 }

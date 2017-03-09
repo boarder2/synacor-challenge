@@ -115,6 +115,8 @@ mod tests {
 		assert_eq!(arr, ds.get_instruction_type_breaks());
 		ds.remove_instruction_type_break(arr.pop().unwrap());
 		assert_eq!(arr, ds.get_instruction_type_breaks());
+		assert_eq!(true, ds.is_instruction_type_break(arr[0]));
+		assert_eq!(false, ds.is_instruction_type_break(1234));
 	}
 
 	#[test]
@@ -127,5 +129,7 @@ mod tests {
 		assert_eq!(arr, ds.get_instruction_breaks());
 		ds.remove_instruction_break(arr.pop().unwrap());
 		assert_eq!(arr, ds.get_instruction_breaks());
+		assert_eq!(true, ds.is_instruction_break(arr[0]));
+		assert_eq!(false, ds.is_instruction_break(1234));
 	}
 }

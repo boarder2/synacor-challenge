@@ -38,7 +38,7 @@ mod tests {
 	fn test_run() {
 		let file_path = "./test_run.bin";
 		let mut f = File::create(file_path).unwrap();
-		let mut buf = [0 as u8, 0];
+		let mut buf = [19, 65, 0, 0];
 		f.write_all(&mut buf).unwrap();
 		f.flush().unwrap();
 		super::run(file_path, false);

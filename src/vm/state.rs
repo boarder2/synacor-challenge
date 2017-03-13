@@ -1,3 +1,10 @@
+use rustc_serialize::json;
+use std::env;
+use std::fs;
+use std::fs::File;
+use std::io::prelude::*;
+
+#[derive(RustcDecodable, RustcEncodable, Debug)]
 pub struct VMState {
 	current_instruction: u16,
 	memory: Vec<u16>,
@@ -64,9 +71,9 @@ impl VMState {
 		}
 	}
 
-	pub fn get_registers(&mut self) -> Vec<u16> {
-		self.registers.clone()
-	}
+	// pub fn get_registers(&mut self) -> Vec<u16> {
+	// 	self.registers.clone()
+	// }
 
 	pub fn push_stack(&mut self, value: u16) {
 		self.stack.push(value);
@@ -82,6 +89,42 @@ impl VMState {
 
 	pub fn get_console_output(&self) -> &str {
 		self.console_output.as_str()
+	}
+
+	pub fn save_state(&self, file_name: &str) {
+		let mut save_path = env::current_exe().unwrap();
+		save_path.pop(); //Remove exe from the path.
+		save_path.push("saves");
+		if !save_path.exists() {
+			fs::create_dir_all(&save_path).unwrap();
+		}
+		save_path.push(file_name);
+		let mut f = File::create(&save_path).unwrap();
+		let data = json::encode(&self).unwrap().into_bytes();
+		f.write_all(&data).unwrap();
+		f.flush().unwrap();
+		println!("Saved to {}", save_path.to_string_lossy());
+	}
+
+	pub fn load_state(&mut self, file_name: &str) {
+		let mut save_path = env::current_exe().unwrap();
+		save_path.pop(); //Remove exe from the path.
+		save_path.push("saves");
+		save_path.push(file_name);
+		if !save_path.exists() {
+			println!("{} doesn't exist.", save_path.to_string_lossy());
+			return;
+		}
+		let mut file = File::open(&save_path).unwrap();
+		let mut buf = String::new();
+		file.read_to_string(&mut buf).unwrap();
+		let data = json::decode::<VMState>(&buf).unwrap();
+		self.console_output = data.console_output.clone();
+		self.current_instruction = data.current_instruction;
+		self.memory = data.memory.clone();
+		self.registers = data.registers.clone();
+		self.stack = data.stack.clone();
+		println!("Loaded.");
 	}
 }
 

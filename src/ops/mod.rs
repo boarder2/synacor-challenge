@@ -53,12 +53,21 @@ pub fn run_op(vm_state: &mut state::VMState, input_buffer: &mut VecDeque<u8>) ->
 		20 => {
 			let ci = vm_state.get_current_instruction();
 			if input_buffer.is_empty() {
-				let mut buf = String::new();
-				println!(">");
-				io::stdin().read_line(&mut buf).unwrap();
-				for ch in buf.chars() {
-					if ch as u8 != 13 {
-						input_buffer.push_back(ch as u8);
+				loop {
+					let mut buf = String::new();
+					println!(">");
+					io::stdin().read_line(&mut buf).unwrap();
+					let is_custom_command = process_custom_command(buf.replace("\r", "")
+						                                               .replace("\n", "")
+						                                               .as_str(),
+					                                               vm_state);
+					if !is_custom_command {
+						for ch in buf.chars() {
+							if ch as u8 != 13 {
+								input_buffer.push_back(ch as u8);
+							}
+						}
+						break;
 					}
 				}
 			}
@@ -82,4 +91,25 @@ pub fn run_op(vm_state: &mut state::VMState, input_buffer: &mut VecDeque<u8>) ->
 
 fn run_op_local<T: operation::Operation>(op: T, vm_state: &mut state::VMState) {
 	op.run(vm_state);
+}
+
+fn process_custom_command(cmd: &str, vm_state: &mut state::VMState) -> bool {
+	let args = cmd.trim().split(' ').collect::<Vec<&str>>();
+
+	if args[0] == "save" {
+		if args.len() < 2 || args[1].trim().is_empty() {
+			println!("invalid save syntax");
+		} else {
+			vm_state.save_state(args[1]);
+		}
+		return true;
+	} else if args[0] == "load" {
+		if args.len() < 2 || args[1].trim().is_empty() {
+			println!("invalid load syntax");
+		} else {
+			vm_state.load_state(args[1]);
+		}
+		return true;
+	}
+	return false;
 }

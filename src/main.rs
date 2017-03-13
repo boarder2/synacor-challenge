@@ -1,6 +1,7 @@
 extern crate time;
 extern crate byteorder;
 extern crate clap;
+extern crate rustc_serialize;
 mod loader;
 mod vm;
 mod ops;

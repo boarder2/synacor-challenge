@@ -6,3 +6,4 @@ authors = ["boarder2"]
 time = "*"
 byteorder = "*"
 clap = "2.*"
+rustc-serialize = "0.3.*"

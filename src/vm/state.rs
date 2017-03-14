@@ -71,9 +71,9 @@ impl VMState {
 		}
 	}
 
-	// pub fn get_registers(&mut self) -> Vec<u16> {
-	// 	self.registers.clone()
-	// }
+	pub fn get_registers(&mut self) -> Vec<u16> {
+		self.registers.clone()
+	}
 
 	pub fn push_stack(&mut self, value: u16) {
 		self.stack.push(value);

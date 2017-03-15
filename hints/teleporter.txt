@@ -1,3 +1,13 @@
+debug ci:0 - stepping:true>
+aib 521
+debug ci:0 - stepping:true>
+aib 5451
+debug ci:0 - stepping:true>
+aib 5522
+debug ci:0 - stepping:true>
+aib 6042
+debug ci:0 - stepping:true>
+
 2, 7, 9, 5 (pentagon), 3 (triangle)
 
 _ + _ * _^2 + _^3 - _ = 399

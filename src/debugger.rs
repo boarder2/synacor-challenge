@@ -16,14 +16,14 @@ pub mod debugger {
 
 		let ci = vm_state.get_current_instruction();
 
-		clear_term();
-		println!("Output:\n{}", vm_state.get_console_output());
-		print_summary(vm_state, debug_state);
-
 		if !debug_state.is_stepping() && !debug_state.is_instruction_break(ci) &&
 		   !debug_state.is_instruction_type_break(vm_state.get_mem_raw(ci)) {
 			return;
 		}
+
+		clear_term();
+		println!("Output:\n{}", vm_state.get_console_output());
+		print_summary(vm_state, debug_state);
 
 		loop {
 			println!("debug ci:{} - stepping:{}>", ci, debug_state.is_stepping());
@@ -60,7 +60,7 @@ pub mod debugger {
 	fn add_instruction_breakpoint(args: &Vec<&str>, debug_state: &mut debug_state::DebugState) {
 		if args.len() == 2 {
 			match args[1].parse::<u16>() {
-				Ok(inst) => debug_state.add_instruction_type_break(inst),
+				Ok(inst) => debug_state.add_instruction_break(inst),
 				Err(_) => {}
 			}
 		}
@@ -141,7 +141,7 @@ pub mod debugger {
 		         instr_name(vms.get_mem_raw(ci)),
 		         vms.get_mem_segment(ci, 4));
 		//TODO: Add register and stack retrieval
-		// println!("Registers {:?}", reg);
+		println!("Registers {:?}", vms.get_registers());
 		// println!("Stack {:?}", stack);
 		print_memory_watches(ds, &vms);
 	}

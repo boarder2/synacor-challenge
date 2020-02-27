@@ -9,10 +9,10 @@ mod debugger;
 mod test;
 mod debug_state;
 use clap::{Arg, App};
-use time::PreciseTime;
+use time::Instant;
 
 fn main() {
-	let start = PreciseTime::now();
+	let start = Instant::now();
 	let matches = App::new("Synacor Challenge VM")
 		.version("1.0")
 		.author("Willie Zutz")
@@ -39,6 +39,7 @@ fn main() {
 
 	vm::run(bin_path, debug);
 
-	let end = PreciseTime::now();
-	println!("Took {}", start.to(end));
+	let end = Instant::now();
+	let elapsed = start - end;
+	println!("Took {}:{}:{}", elapsed.whole_minutes(), elapsed.whole_seconds(), elapsed.whole_milliseconds());
 }

@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use std::io;
+use std::io::{self, Write};
 mod operation;
 mod set;
 mod push;
@@ -55,7 +55,8 @@ pub fn run_op(vm_state: &mut state::VMState, input_buffer: &mut VecDeque<u8>) ->
 			if input_buffer.is_empty() {
 				loop {
 					let mut buf = String::new();
-					println!(">");
+					print!("> ");
+					io::stdout().flush().unwrap();
 					io::stdin().read_line(&mut buf).unwrap();
 					let is_custom_command = process_custom_command(buf.replace("\r", "")
 						                                               .replace("\n", "")

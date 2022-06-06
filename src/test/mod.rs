@@ -1,3 +1,4 @@
+#[cfg(test)]
 pub mod state_helper {
 	use vm::state::VMState;
 

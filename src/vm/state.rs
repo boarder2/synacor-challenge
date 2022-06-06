@@ -1,10 +1,10 @@
-use rustc_serialize::json;
 use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(RustcDecodable, RustcEncodable, Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct VMState {
 	current_instruction: u16,
 	memory: Vec<u16>,
@@ -100,7 +100,7 @@ impl VMState {
 		}
 		save_path.push(file_name);
 		let mut f = File::create(&save_path).unwrap();
-		let data = json::encode(&self).unwrap().into_bytes();
+		let data = serde_json::to_string(&self).unwrap().into_bytes();
 		f.write_all(&data).unwrap();
 		f.flush().unwrap();
 		println!("Saved to {}", save_path.to_string_lossy());
@@ -118,7 +118,7 @@ impl VMState {
 		let mut file = File::open(&save_path).unwrap();
 		let mut buf = String::new();
 		file.read_to_string(&mut buf).unwrap();
-		let data = json::decode::<VMState>(&buf).unwrap();
+		let data : VMState = serde_json::from_str(&buf).unwrap();
 		self.console_output = data.console_output.clone();
 		self.current_instruction = data.current_instruction;
 		self.memory = data.memory.clone();
